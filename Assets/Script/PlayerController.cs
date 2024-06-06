@@ -18,10 +18,10 @@ public class PlayerController : MonoSingleton<PlayerController>
     private float dashingTime = 0.2f;
     public float dashingCooldown = 0.3f;
 
-    private bool isDeath = false;
+     public bool isDeath = false;
     private bool isFacingRight = true;
     private bool canDash = true;
-    private bool isDashing;
+    public bool isDashing;
 
     public int maxHealth = 100;
     public int currentHealth;
@@ -30,12 +30,9 @@ public class PlayerController : MonoSingleton<PlayerController>
     [SerializeField] private Transform grounCheck;
     [SerializeField] private LayerMask groundLayer;
 
-    public HealtAndStamina healtAndStamina;
-
     void Start(){
-        
         currentHealth = maxHealth;
-        healtAndStamina.SetMaxHealth(maxHealth);
+        HealthController.Instance.SetMaxHealth(maxHealth);
     }
 
     void Update(){
@@ -64,12 +61,10 @@ public class PlayerController : MonoSingleton<PlayerController>
             animator.SetFloat("Horizontal", movement.x);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && AttackController.Instance.canMove){
+        if (Input.GetKeyDown(KeyCode.Space) && AttackController.Instance.canMove && isDeath==false){
             AttackController.Instance.Attack(IsGrounded(),animator);
-            TakeDamage(10);
 
         }
-        
         else if (Input.GetKeyDown(KeyCode.LeftShift) && canDash){
             StartCoroutine(Dash());
         }
@@ -78,7 +73,7 @@ public class PlayerController : MonoSingleton<PlayerController>
     }
 
     void FixedUpdate(){
-        if (isDashing || !AttackController.Instance.canMove){
+        if (isDashing || !AttackController.Instance.canMove ){
             return;
         }
         rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
@@ -124,13 +119,18 @@ public class PlayerController : MonoSingleton<PlayerController>
 
     public void TakeDamage(int damage){
         currentHealth -= damage;
-        healtAndStamina.SetHealth(currentHealth);
-        
+        HealthController.Instance.SetHealth(currentHealth);
+        animator.SetTrigger("IsGetDamage");
+
         if(currentHealth<=0)
             Death();
     }
 
     public void Death(){
         animator.SetBool("IsDead",true);
+        rb.velocity = Vector2.zero;
+        isDeath = true;
+        GameManager.Instance.GameOver();
+        GetComponent<PlayerController>().enabled = false;
     }
 }

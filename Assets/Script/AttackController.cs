@@ -7,7 +7,7 @@ public class AttackController : MonoSingleton<AttackController>
 {
     private float attackTime = 0.4f;
     public float attackRange = 0.5f;
-    public int attackDamage = 40;
+    private int attackDamage = 20;
 
     private bool canAttack = true;
     public bool canMove = true;
@@ -17,7 +17,7 @@ public class AttackController : MonoSingleton<AttackController>
     
     void Update()
     {
-        
+       
     }
 
     public void Attack(bool _isGrounded,Animator _animator)
